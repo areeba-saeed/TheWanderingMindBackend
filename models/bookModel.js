@@ -9,17 +9,20 @@ const BookSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Categories",
     },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Authors",
+    },
+
     description: {
       type: String,
     },
     price: {
       type: String,
     },
-    images: [
-      {
-        type: String,
-      },
-    ],
+    image: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

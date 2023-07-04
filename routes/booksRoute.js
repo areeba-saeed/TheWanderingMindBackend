@@ -32,16 +32,16 @@ const {
   setBook,
   updateBook,
   deleteBook,
-  uploadImage,
-  deleteBookImage,
 } = require("../controller/booksController");
 
 // Books
-bookRoutes.route("/:id").get(getBooksById).patch(updateBook).delete(deleteBook);
-bookRoutes.route("/").get(getBooks).post(setBook);
+bookRoutes
+  .route("/:id")
+  .get(getBooksById)
+  .patch(upload.single("image"), updateBook)
+  .delete(deleteBook);
+bookRoutes.route("/").get(getBooks).post(upload.single("image"), setBook);
 bookRoutes.route("/byCategory/:category").get(getBooksByCategory);
-bookRoutes.route("/bookImage/:id").patch(upload.single("image"), uploadImage);
-bookRoutes.route("/bookImage/:id/:index").delete(deleteBookImage);
 
 const imagesDir = path.join(__dirname, "../assets/books");
 bookRoutes.get("/images/:imageName", (req, res) => {

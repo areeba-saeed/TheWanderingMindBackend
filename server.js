@@ -10,6 +10,7 @@ const userRoutes = require("./routes/userRoute");
 const categoryRoutes = require("./routes/categoryRoutes");
 const cartRouter = require("./routes/cartRoutes");
 const bookRoutes = require("./routes/booksRoute");
+const authorRoutes = require("./routes/authorRoutes");
 require("dotenv").config();
 
 const app = express();
@@ -35,6 +36,7 @@ app.use(passport.initialize());
 require("./config/passport")(passport);
 // Routes
 app.use("/api/users", users);
+app.use("/api/authors", authorRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/user", userRoutes);

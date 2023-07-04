@@ -62,7 +62,12 @@ const updateCategory = async (req, res) => {
       // Set the new image filename
       image = req.file.filename;
     }
-    await Categories.findByIdAndUpdate(id, { name, image }, { new: true });
+    const updated = await Categories.findByIdAndUpdate(
+      id,
+      { name, image },
+      { new: true }
+    );
+    res.json(updated);
   } catch (error) {
     res.json(error);
   }
@@ -92,7 +97,7 @@ const deleteCategory = async (req, res) => {
       });
     }
     await Categories.findByIdAndDelete(id);
-    Categories.find();
+    return Categories.find();
   } catch (error) {
     res.status(404).json({ error: error });
   }

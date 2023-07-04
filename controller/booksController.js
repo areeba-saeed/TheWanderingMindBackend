@@ -6,7 +6,9 @@ const path = require("path");
 const getBooksById = async (req, res) => {
   const { id } = req.params;
   try {
-    const books = await Books.findById(id).populate("category");
+    const books = await Books.findById(id)
+      .populate("category")
+      .populate("author");
 
     res.json(books);
   } catch (error) {
@@ -17,7 +19,7 @@ const getBooksById = async (req, res) => {
 
 // Get all Books
 const getBooks = async (req, res) => {
-  const books = await Books.find().populate("category");
+  const books = await Books.find().populate("category").populate("author");
   res.json(books);
 };
 
@@ -38,8 +40,8 @@ const getBooksByCategory = async (req, res) => {
 
 // Post order
 const setBook = async (req, res) => {
-  const { category, name, price, description } = req.body;
-
+  const { category, name, price, description, author } = req.body;
+  const image = req.file ? req.file.filename : null;
   try {
     // Check if product with same name and category already exists
     const existingBook = await Books.findOne({
@@ -49,11 +51,16 @@ const setBook = async (req, res) => {
     if (existingBook) {
       return res.status(404).send("Book already exists");
     }
+    if (!image) {
+      return res.status(404).send("Must add image");
+    }
     const newBook = new Books({
       name,
       category,
       price,
+      author,
       description,
+      image,
     });
     newBook.save();
     res.json(newBook);
@@ -65,105 +72,60 @@ const setBook = async (req, res) => {
 // Update User
 const updateBook = async (req, res) => {
   const { id } = req.params;
-  const { name, description, category, price } = req.body;
+  const { name, description, category, price, author } = req.body;
   try {
-    await Books.findByIdAndUpdate(
+    const book = await Books.findById(id);
+
+    const previousImage = book.image;
+    let image;
+    // Check if a new image is provided
+    if (req.file) {
+      // Delete the previous image if it exists
+      if (previousImage) {
+        const imagePath = path.join(
+          __dirname,
+          "../assets/books",
+          previousImage
+        );
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+        }
+      }
+      // Set the new image filename
+      image = req.file.filename;
+    }
+    const updated = await Books.findByIdAndUpdate(
       id,
-      { name, description, category, price },
+      { name, description, category, author, price, image },
       { new: true }
     );
+    res.json(updated);
   } catch (error) {
     res.json(error);
   }
 };
 
-const uploadImage = async (req, res) => {
-  const { id } = req.params;
-  const image = req.file ? req.file.filename : null;
-  try {
-    const book = await Books.findById(id);
-
-    // If a file is present, add the image to the images array
-    if (image) {
-      book.images.push(image);
-      await book.save();
-    }
-
-    res.status(200).send("Image uploaded successfully");
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error uploading image");
-  }
-};
-
-const deleteBookImage = async (req, res) => {
-  const { id, index } = req.params;
-  try {
-    const book = await Books.findById(id);
-
-    if (!book) {
-      return res.status(404).send("Book not found");
-    }
-
-    // Get the image filename at the specified index
-    const imageToDelete = book.images[index];
-
-    if (!imageToDelete) {
-      return res.status(404).send("Image not found");
-    }
-
-    // Delete the image from the images array
-    book.images.splice(index, 1);
-    await book.save();
-
-    // Delete the image file from the books folder
-    const imagePath = path.join(__dirname, "../assets/books", imageToDelete);
-    try {
-      // Check if the file exists
-      if (fs.existsSync(imagePath)) {
-        // Delete the file
-        fs.unlinkSync(imagePath);
-        console.log("Image deleted successfully");
-      }
-    } catch (error) {
-      console.error("Error deleting image", error);
-    }
-
-    res.status(200).send("Image deleted successfully");
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error deleting image");
-  }
-};
 const deleteBook = async (req, res) => {
   const { id } = req.params;
   try {
     const book = await Books.findById(id);
 
-    if (!book) {
-      return res.status(404).send("Book not found");
+    if (book.image != null) {
+      const imagePath = path.resolve(__dirname, "../assets/books", book.image);
+      await new Promise((resolve, reject) => {
+        fs.unlink(imagePath, (err) => {
+          if (err) {
+            console.error("Error deleting image file:", err);
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
     }
-
-    // Delete the book images from the folder
-    const imagePaths = book.images.map((image) =>
-      path.join(__dirname, "../assets/books", image)
-    );
-
-    // Delete the images from the folder
-    for (const imagePath of imagePaths) {
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-        console.log(`Image ${imagePath} deleted successfully`);
-      }
-    }
-
     // Delete the book from the database
-    await book.remove();
-
-    // Fetch the remaining books
-    const books = await Books.find();
-
-    res.json(books);
+    await Books.findByIdAndDelete(id);
+    return Books.find();
   } catch (error) {
     console.error(error);
     res.status(500).send("Error deleting book");
@@ -176,7 +138,5 @@ module.exports = {
   getBooksByCategory,
   setBook,
   updateBook,
-  uploadImage,
-  deleteBookImage,
   deleteBook,
 };
