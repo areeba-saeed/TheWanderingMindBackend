@@ -11,15 +11,16 @@ const categoryRoutes = require("./routes/categoryRoutes");
 const cartRouter = require("./routes/cartRoutes");
 const bookRoutes = require("./routes/booksRoute");
 const authorRoutes = require("./routes/authorRoutes");
+const contactRoutes = require("./routes/contactRoutes");
 require("dotenv").config();
 
 const app = express();
 connectDB();
 const corsOptions = {
-  origin: "http://localhost:3000", // Replace with your React app's domain
+  origin: "http://localhost:3001", // Replace with your React app's domain
 };
 
-app.use(cors(corsOptions));
+app.use(cors());
 
 app.use(express.static(path.join(__dirname, "assets")));
 
@@ -36,6 +37,7 @@ app.use(passport.initialize());
 require("./config/passport")(passport);
 // Routes
 app.use("/api/users", users);
+app.use("/api/contact", contactRoutes);
 app.use("/api/authors", authorRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/orders", orderRoutes);

@@ -5,6 +5,9 @@ const categorySchema = mongoose.Schema(
     name: {
       type: String,
     },
+    urlName: {
+      type: String,
+    },
     image: {
       type: String,
     },

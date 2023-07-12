@@ -5,6 +5,9 @@ const BookSchema = mongoose.Schema(
     name: {
       type: String,
     },
+    urlName: {
+      type: String,
+    },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Categories",

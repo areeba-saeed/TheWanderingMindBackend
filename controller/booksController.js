@@ -16,6 +16,27 @@ const getBooksById = async (req, res) => {
     res.status(500).send("Internal server error");
   }
 };
+// Get Books by url
+const getBooksByUrlName = async (req, res) => {
+  const { urlName } = req.params;
+  try {
+    const books = await Books.findOne({ urlName })
+      .populate("category", "name")
+      .populate("author");
+
+    // Replace the populated category object with just the category's name
+    const booksWithCategoryName = {
+      ...books._doc,
+      category: books.category.name,
+      categoryId: books.category._id,
+    };
+
+    res.json(booksWithCategoryName);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal server error");
+  }
+};
 
 // Get all Books
 const getBooks = async (req, res) => {
@@ -25,12 +46,12 @@ const getBooks = async (req, res) => {
 
 // Get Books by category name
 const getBooksByCategory = async (req, res) => {
-  const { category } = req.params;
+  const { category, urlName } = req.params;
   try {
-    const books = await Books.find({ category: category });
-    if (!books) {
-      return res.status(404).send("No books found for this category");
-    }
+    const books = await Books.find({
+      category: category,
+      urlName: { $ne: urlName },
+    });
     res.json(books);
   } catch (error) {
     console.error(error);
@@ -42,6 +63,12 @@ const getBooksByCategory = async (req, res) => {
 const setBook = async (req, res) => {
   const { category, name, price, description, author } = req.body;
   const image = req.file ? req.file.filename : null;
+  const trimmedName = name.trimRight();
+  const urlName = `${trimmedName
+    .replace(/\s+$/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, "-")}`;
+
   try {
     // Check if product with same name and category already exists
     const existingBook = await Books.findOne({
@@ -58,6 +85,7 @@ const setBook = async (req, res) => {
       name,
       category,
       price,
+      urlName,
       author,
       description,
       image,
@@ -73,6 +101,12 @@ const setBook = async (req, res) => {
 const updateBook = async (req, res) => {
   const { id } = req.params;
   const { name, description, category, price, author } = req.body;
+  const trimmedName = name.trimRight();
+  const urlName = `${trimmedName
+    .replace(/\s+$/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, "-")}`;
+
   try {
     const book = await Books.findById(id);
 
@@ -96,7 +130,7 @@ const updateBook = async (req, res) => {
     }
     const updated = await Books.findByIdAndUpdate(
       id,
-      { name, description, category, author, price, image },
+      { name, description, category, urlName, author, price, image },
       { new: true }
     );
     res.json(updated);
@@ -134,6 +168,7 @@ const deleteBook = async (req, res) => {
 
 module.exports = {
   getBooksById,
+  getBooksByUrlName,
   getBooks,
   getBooksByCategory,
   setBook,

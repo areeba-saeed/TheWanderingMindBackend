@@ -4,17 +4,13 @@ const userRoutes = express.Router();
 const {
   updateUser,
   getUser,
-  addAddress,
-  deleteAddress,
-  updateAddress,
+  getUsers,
+  deleteUser,
 } = require("../controller/userController");
 
 // Users
+userRoutes.route("/").get(getUsers);
 userRoutes.route("/:id").get(getUser).put(updateUser);
-userRoutes.route("/addresses/:id").post(addAddress);
-userRoutes
-  .route("/addresses/:id/:addressId")
-  .delete(deleteAddress)
-  .put(updateAddress);
+userRoutes.route("/delete/:id").delete(deleteUser);
 
 module.exports = userRoutes;

@@ -1,11 +1,23 @@
 const express = require("express");
 const orderRoutes = express.Router();
 
-const { getOrders, setorder } = require("../controller/orderControllers");
+const {
+  getOrders,
+  getUserOrders,
+  setorder,
+  getOrdersCart,
+  updateOrder,
+  deleteOrder,
+} = require("../controller/orderControllers");
 
 // Orders
 
-orderRoutes.route("/orders/:id").get(getOrders);
-orderRoutes.route("/order").post(setorder);
+orderRoutes.route("/").get(getOrders).post(setorder);
+orderRoutes.route("/checkout/:id").get(getOrdersCart);
+orderRoutes
+  .route("/:id")
+  .get(getUserOrders)
+  .patch(updateOrder)
+  .delete(deleteOrder);
 
 module.exports = orderRoutes;

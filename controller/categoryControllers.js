@@ -13,7 +13,11 @@ const setCategory = async (req, res) => {
   const name = req.body.name;
   const image = req.file ? req.file.filename : null;
   const regex = new RegExp(name, "i");
-
+  const trimmedName = name.trimRight();
+  const urlName = `${trimmedName
+    .replace(/\s+$/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, "-")}`;
   try {
     const existingCategory = await Categories.findOne({ name: regex });
 
@@ -25,7 +29,7 @@ const setCategory = async (req, res) => {
       return res.status(404).send("Must add image");
     }
 
-    const newCategory = new Categories({ name, image });
+    const newCategory = new Categories({ name, image, urlName });
 
     await newCategory.save();
 
@@ -41,6 +45,12 @@ const setCategory = async (req, res) => {
 const updateCategory = async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
+  const trimmedName = name.trimRight();
+  const urlName = `${trimmedName
+    .replace(/\s+$/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, "-")}`;
+
   try {
     const category = await Categories.findById(id);
 
@@ -64,7 +74,7 @@ const updateCategory = async (req, res) => {
     }
     const updated = await Categories.findByIdAndUpdate(
       id,
-      { name, image },
+      { name, image, urlName },
       { new: true }
     );
     res.json(updated);

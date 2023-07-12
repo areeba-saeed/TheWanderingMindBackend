@@ -3,26 +3,23 @@ const Schema = mongoose.Schema;
 // Create Schema
 const CartSchema = new Schema({
   userId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
   },
   items: [
     {
       productId: {
-        type: Number,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Books",
       },
-      name: String,
+
       quantity: {
         type: Number,
-        required: true,
-        min: [1, "Quantity can not be less then 1."],
-        default: 1,
       },
-      price: Number,
     },
   ],
   bill: {
     type: Number,
-    required: true,
     default: 0,
   },
 });

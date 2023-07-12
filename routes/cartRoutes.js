@@ -7,9 +7,9 @@ const {
   delete_all_items,
 } = require("../controller/cartControllers");
 
-cartRouter.get("/cart/:id", get_cart_items);
-cartRouter.post("/addcart/:id", add_cart_item);
-cartRouter.delete("/delete/:userId/:itemId", delete_item);
-cartRouter.delete("/delete/:userId", delete_all_items);
+cartRouter.get("/:id", get_cart_items);
+cartRouter.patch("/addcart/:id/:productId", add_cart_item);
+cartRouter.patch("/delete/:id/:productId", delete_item);
+cartRouter.delete("/delete/:id", delete_all_items);
 
 module.exports = cartRouter;

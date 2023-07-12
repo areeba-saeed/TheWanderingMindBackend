@@ -15,9 +15,15 @@ const setAuthor = async (req, res) => {
     if (existingAuthor) {
       return res.status(404).send("Author already exists");
     }
+    const trimmedName = name.trimRight();
+    const urlName = `${trimmedName
+      .replace(/\s+$/g, "")
+      .toLowerCase()
+      .replace(/\s+/g, "-")}`;
 
     const newAuthor = new Authors({
       name,
+      urlName,
     });
     newAuthor.save();
     res.json(newAuthor);
@@ -28,8 +34,17 @@ const setAuthor = async (req, res) => {
 const updateAuthor = async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
+  const trimmedName = name.trimRight();
+  const urlName = `${trimmedName
+    .replace(/\s+$/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, "-")}`;
 
-  await Authors.findByIdAndUpdate(id, { name: name }, { new: true })
+  await Authors.findByIdAndUpdate(
+    id,
+    { name: name, urlName: urlName },
+    { new: true }
+  )
     .then((author) => {
       res.json(author);
     })

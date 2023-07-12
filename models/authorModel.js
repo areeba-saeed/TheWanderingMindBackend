@@ -5,6 +5,9 @@ const AuthorSchema = mongoose.Schema(
     name: {
       type: String,
     },
+    urlName: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
