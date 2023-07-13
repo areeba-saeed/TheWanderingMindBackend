@@ -8,9 +8,6 @@ const categorySchema = mongoose.Schema(
     urlName: {
       type: String,
     },
-    image: {
-      type: String,
-    },
   },
   { timestamps: true }
 );

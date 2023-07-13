@@ -1,14 +1,13 @@
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const keys = require("../config/db");
+
 const User = require("../models/User");
-const Cart = require("../models/Cart");
 require("dotenv").config();
 
 // Register
 
 const validationRegister = (req, res) => {
-  const { name, email, password, phoneNo } = req.body;
+  const { name, email, password } = req.body;
+  const image = req.file ? req.file.filename : null;
   try {
     User.findOne({ email: email }).then((user) => {
       if (user) {
@@ -18,7 +17,7 @@ const validationRegister = (req, res) => {
           name: name,
           email: email,
           password: password,
-          phoneNo: phoneNo,
+          image: image,
         });
 
         // Hash password before saving in database
@@ -26,10 +25,7 @@ const validationRegister = (req, res) => {
           bcrypt.hash(newUser.password, salt, (err, hash) => {
             if (err) throw err;
             newUser.password = hash;
-            const newCart = new Cart({
-              userId: newUser._id,
-            });
-            newCart.save();
+
             newUser
               .save()
               .then((user) => res.json(user))
@@ -61,13 +57,7 @@ const validationLogin = (req, res) => {
       if (isMatch) {
         // User matched
 
-        res.json({
-          success: true,
-          user: {
-            id: user._id,
-            name: user.name,
-          },
-        });
+        res.json(user);
       } else {
         return res.status(400).send("Password incorrect");
       }

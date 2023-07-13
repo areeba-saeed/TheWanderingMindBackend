@@ -1,5 +1,5 @@
 const express = require("express");
-const bookRoutes = express.Router();
+const blogRoutes = express.Router();
 const multer = require("multer");
 const path = require("path");
 
@@ -13,7 +13,7 @@ function generateUniqueFilename(file) {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "assets/books");
+    cb(null, "assets/blogs");
   },
   filename: function (req, file, cb) {
     cb(null, generateUniqueFilename(file));
@@ -26,27 +26,31 @@ const fileFilter = (req, file, cb) => {
 let upload = multer({ storage, fileFilter });
 
 const {
-  getBooksById,
-  getBooks,
-  getBooksByCategory,
-  setBook,
-  updateBook,
-  deleteBook,
-  getBooksByUrlName,
-} = require("../controller/booksController");
+  getBlogsById,
+  getBlogs,
+  getBlogsByCategory,
+  setBlog,
+  updateBlog,
+  deleteBlog,
+  getBlogsByUrlName,
+  getSimilarBlogs,
+  getBlogsByUser,
+} = require("../controller/blogController");
 
-// Books
-bookRoutes
+// Blogs
+blogRoutes
   .route("/:id")
-  .get(getBooksById)
-  .patch(upload.single("image"), updateBook)
-  .delete(deleteBook);
-bookRoutes.route("/").get(getBooks).post(upload.single("image"), setBook);
-bookRoutes.route("/byCategory/:category/:urlName").get(getBooksByCategory);
-bookRoutes.route("/find/:urlName").get(getBooksByUrlName);
+  .get(getBlogsById)
+  .patch(upload.single("image"), updateBlog)
+  .delete(deleteBlog);
+blogRoutes.route("/").get(getBlogs).post(upload.single("image"), setBlog);
+blogRoutes.route("/byCategory/:urlName").get(getBlogsByCategory);
+blogRoutes.route("/byCategory/:category/:urlName").get(getSimilarBlogs);
+blogRoutes.route("/byUser/:user").get(getBlogsByUser);
+blogRoutes.route("/find/:urlName").get(getBlogsByUrlName);
 
-const imagesDir = path.join(__dirname, "../assets/books");
-bookRoutes.get("/images/:imageName", (req, res) => {
+const imagesDir = path.join(__dirname, "../assets/blogs");
+blogRoutes.get("/images/:imageName", (req, res) => {
   const imageName = req.params.imageName;
   const imagePath = path.join(imagesDir, imageName);
 
@@ -57,4 +61,4 @@ bookRoutes.get("/images/:imageName", (req, res) => {
   });
 });
 
-module.exports = bookRoutes;
+module.exports = blogRoutes;

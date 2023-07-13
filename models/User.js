@@ -12,37 +12,9 @@ const UserSchema = new Schema({
   password: {
     type: String,
   },
-  address: {
+  image: {
     type: String,
   },
-  phoneNo: {
-    type: String,
-  },
-  country: {
-    type: String,
-  },
-  state: {
-    type: String,
-  },
-  zip: {
-    type: String,
-  },
-  nameOnCard: {
-    type: String,
-  },
-  cvv: {
-    type: String,
-  },
-  creditNumber: {
-    type: String,
-  },
-  expiration: {
-    type: String,
-  },
-  address2: {
-    type: String,
-  },
-
   date: {
     type: Date,
     default: Date.now,
